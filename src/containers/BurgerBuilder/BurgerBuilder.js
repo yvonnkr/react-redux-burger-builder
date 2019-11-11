@@ -6,27 +6,22 @@ import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import axios from '../../axios-orders';
-import Spinner from '../../components/UI/Spinner/Spinner';
+// import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from './../../hoc/withErrorHandler/withErrorHandler';
-import * as actionTypes from '../../store/action';
+import {
+  addIngredient,
+  removeIngredient,
+  initIngredients,
+  purchaseInit
+} from './../../store/actions/index';
 
 class BurgerBuilder extends Component {
   state = {
-    // ingredients: {},
-    // totalPrice: 4,
-    // purchasable: false,
-    purchasing: false,
-    loading: false,
-    error: false
+    purchasing: false
   };
 
-  async componentDidMount() {
-    // try {
-    //   const response = await axios.get('/ingredients.json');
-    //   this.setState({ ingredients: response.data });
-    // } catch (error) {
-    //   this.setState({ error: true });
-    // }
+  componentDidMount() {
+    this.props.initIngredients();
   }
 
   updatePurchaseState = ingredients => {
@@ -50,18 +45,11 @@ class BurgerBuilder extends Component {
   };
 
   purchaseContinueHandler = () => {
+    this.props.purchaseInit();
     this.props.history.push('/checkout');
   };
 
   render() {
-    const {
-      // ingredients,
-      // totalPrice,
-      // purchasable,
-      purchasing,
-      loading
-    } = this.state;
-
     const disabledInfo = { ...this.props.ingredients };
     for (let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0;
@@ -76,24 +64,27 @@ class BurgerBuilder extends Component {
       />
     );
 
-    if (this.state.error) {
+    if (this.props.error) {
       return <p>Error! Ingredients cant be loaded</p>;
     }
 
-    if (loading) {
-      orderSummary = <Spinner />;
-    }
+    // if (loading) {
+    //   orderSummary = <Spinner />;
+    // }
 
     return (
       <>
-        <Modal show={purchasing} modalClosed={this.purchaseCancelHandler}>
+        <Modal
+          show={this.state.purchasing}
+          modalClosed={this.purchaseCancelHandler}
+        >
           {orderSummary}
         </Modal>
 
         <Burger ingredients={this.props.ingredients} />
         <BuildControls
-          ingredientAdded={this.props.onIngredientAdded}
-          ingredientRemoved={this.props.onIngredientRemoved}
+          ingredientAdded={this.props.addIngredient}
+          ingredientRemoved={this.props.removeIngredient}
           disabled={disabledInfo}
           purchasable={this.updatePurchaseState(this.props.ingredients)}
           ordered={this.purchaseHandler}
@@ -105,22 +96,29 @@ class BurgerBuilder extends Component {
 }
 const mapStateToProps = state => {
   return {
-    ingredients: state.ingredients,
-    totalPrice: state.totalPrice
+    ingredients: state.burgerBuilder.ingredients,
+    totalPrice: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onIngredientAdded: ingredientName =>
-      dispatch({ type: actionTypes.ADD_INGREDIENT, ingredientName }),
-    onIngredientRemoved: ingredientName =>
-      dispatch({ type: actionTypes.REMOVE_INGREDIENT, ingredientName })
-  };
-};
-
-// export default withErrorHandler(BurgerBuilder, axios);
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  { addIngredient, removeIngredient, initIngredients, purchaseInit }
 )(withErrorHandler(BurgerBuilder, axios));
+
+// max's way ***********************************************
+
+//const mapDispatchToProps = dispatch => {
+//   return {
+//     onIngredientAdded: ingredientName =>
+//       dispatch(addIngredient(ingredientName)),
+//     onIngredientRemoved: ingredientName =>
+//       dispatch(removeIngredient(ingredientName))
+//   };
+// };
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(withErrorHandler(BurgerBuilder, axios));
