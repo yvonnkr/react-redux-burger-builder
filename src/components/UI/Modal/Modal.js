@@ -10,9 +10,7 @@ class Modal extends React.Component {
       nextProps.children !== this.props.children
     );
   }
-  UNSAFE_componentWillUpdate() {
-    // console.log('Modal => didUpdate');
-  }
+
   render() {
     const { children, show, modalClosed } = this.props;
     return (

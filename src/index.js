@@ -10,7 +10,13 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import rootReducer from './store/reducers/index';
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+// const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+//to prevent redux_devtool in production
+const composeEnhancers =
+  process.env.NODE_ENV === 'development'
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+    : null;
 
 const store = createStore(
   rootReducer,

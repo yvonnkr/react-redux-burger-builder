@@ -12,7 +12,8 @@ import {
   addIngredient,
   removeIngredient,
   initIngredients,
-  purchaseInit
+  purchaseInit,
+  setAuthRedirectPath
 } from './../../store/actions/index';
 
 class BurgerBuilder extends Component {
@@ -37,7 +38,12 @@ class BurgerBuilder extends Component {
   };
 
   purchaseHandler = () => {
-    this.setState({ purchasing: true });
+    if (this.props.isAuthenticated) {
+      this.setState({ purchasing: true });
+    } else {
+      this.props.setAuthRedirectPath('/checkout');
+      this.props.history.push('/auth');
+    }
   };
 
   purchaseCancelHandler = () => {
@@ -89,6 +95,7 @@ class BurgerBuilder extends Component {
           purchasable={this.updatePurchaseState(this.props.ingredients)}
           ordered={this.purchaseHandler}
           price={this.props.totalPrice}
+          isAuthenticated={this.props.isAuthenticated}
         />
       </>
     );
@@ -98,13 +105,20 @@ const mapStateToProps = state => {
   return {
     ingredients: state.burgerBuilder.ingredients,
     totalPrice: state.burgerBuilder.totalPrice,
+    isAuthenticated: state.auth.token !== null,
     error: state.burgerBuilder.error
   };
 };
 
 export default connect(
   mapStateToProps,
-  { addIngredient, removeIngredient, initIngredients, purchaseInit }
+  {
+    addIngredient,
+    removeIngredient,
+    initIngredients,
+    purchaseInit,
+    setAuthRedirectPath
+  }
 )(withErrorHandler(BurgerBuilder, axios));
 
 // max's way ***********************************************

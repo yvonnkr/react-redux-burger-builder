@@ -8,6 +8,7 @@ import Spinner from './../../../components/UI/Spinner/Spinner';
 import Input from './../../../components/UI/Input/Input';
 import withErrorHandler from './../../../hoc/withErrorHandler/withErrorHandler';
 import { purchaseBurger } from '../../../store/actions/index';
+import { checkValidity } from './../../../shared/utility';
 
 class ContactData extends Component {
   state = {
@@ -32,7 +33,12 @@ class ContactData extends Component {
         elementType: 'input',
         elementConfig: { type: 'text', placeholder: 'ZIP Code' },
         value: '',
-        validation: { required: true, minLength: 5, maxLength: 5 },
+        validation: {
+          required: true,
+          minLength: 5,
+          maxLength: 5,
+          isNumeric: true
+        },
         valid: false,
         touched: false
       },
@@ -48,7 +54,7 @@ class ContactData extends Component {
         elementType: 'input',
         elementConfig: { type: 'email', placeholder: 'Email' },
         value: '',
-        validation: { required: true },
+        validation: { required: true, isEmail: true },
         valid: false,
         touched: false
       },
@@ -85,54 +91,23 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.ingredients,
       price: this.props.totalPrice,
-      orderData: formData
+      orderData: formData,
+      userId: this.props.userId
     };
 
     //ajax via redux action
-    this.props.purchaseBurger(order);
-
-    //ajax request -- redux
-    // try {
-    //   const response = await axios.post('/orders.json', order);
-
-    //   // this.setState({ loading: false });
-
-    //   this.props.history.push('/');
-
-    //   console.log(response);
-    // } catch (err) {
-    //   this.setState({ loading: false });
-
-    //   console.log(err);
-    // }
+    this.props.purchaseBurger(order, this.props.token);
   };
 
-  checkValidity = (value, rules) => {
-    let isValid = true;
-
-    if (!rules) {
-      return true;
-    }
-
-    if (rules.required) {
-      isValid = value.trim() !== '' && isValid;
-    }
-
-    if (rules.minLength) {
-      isValid = value.length >= rules.minLength && isValid;
-    }
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid;
-    }
-    return isValid;
-  };
+  
 
   inputChangedHandler = (e, inputIdentifier) => {
     const updatedOrderForm = { ...this.state.orderForm };
     const updatedFormElement = { ...updatedOrderForm[inputIdentifier] };
 
+    //could use the utility updateObject() here but chose not to -lesson 374
     updatedFormElement.value = e.target.value;
-    updatedFormElement.valid = this.checkValidity(
+    updatedFormElement.valid = checkValidity(
       updatedFormElement.value,
       updatedFormElement.validation
     );
@@ -194,7 +169,9 @@ const mapStateToProps = state => {
   return {
     ingredients: state.burgerBuilder.ingredients,
     totalPrice: state.burgerBuilder.totalPrice,
-    loading: state.order.loading
+    loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId
   };
 };
 
