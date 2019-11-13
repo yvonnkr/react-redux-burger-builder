@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from "react";
+import { connect } from "react-redux";
 
-import Burger from '../../components/Burger/Burger';
-import BuildControls from '../../components/Burger/BuildControls/BuildControls';
-import Modal from '../../components/UI/Modal/Modal';
-import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
-import axios from '../../axios-orders';
+import Burger from "../../components/Burger/Burger";
+import BuildControls from "../../components/Burger/BuildControls/BuildControls";
+import Modal from "../../components/UI/Modal/Modal";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
+import axios from "../../axios-orders";
 // import Spinner from '../../components/UI/Spinner/Spinner';
-import withErrorHandler from './../../hoc/withErrorHandler/withErrorHandler';
+import withErrorHandler from "./../../hoc/withErrorHandler/withErrorHandler";
 import {
   addIngredient,
   removeIngredient,
   initIngredients,
   purchaseInit,
   setAuthRedirectPath
-} from './../../store/actions/index';
+} from "./../../store/actions/index";
 
-class BurgerBuilder extends Component {
+export class BurgerBuilder extends Component {
   state = {
     purchasing: false
   };
@@ -41,8 +41,8 @@ class BurgerBuilder extends Component {
     if (this.props.isAuthenticated) {
       this.setState({ purchasing: true });
     } else {
-      this.props.setAuthRedirectPath('/checkout');
-      this.props.history.push('/auth');
+      this.props.setAuthRedirectPath("/checkout");
+      this.props.history.push("/auth");
     }
   };
 
@@ -52,7 +52,7 @@ class BurgerBuilder extends Component {
 
   purchaseContinueHandler = () => {
     this.props.purchaseInit();
-    this.props.history.push('/checkout');
+    this.props.history.push("/checkout");
   };
 
   render() {
@@ -110,16 +110,13 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    addIngredient,
-    removeIngredient,
-    initIngredients,
-    purchaseInit,
-    setAuthRedirectPath
-  }
-)(withErrorHandler(BurgerBuilder, axios));
+export default connect(mapStateToProps, {
+  addIngredient,
+  removeIngredient,
+  initIngredients,
+  purchaseInit,
+  setAuthRedirectPath
+})(withErrorHandler(BurgerBuilder, axios));
 
 // max's way ***********************************************
 
